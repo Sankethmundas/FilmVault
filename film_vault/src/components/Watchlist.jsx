@@ -44,7 +44,7 @@ const Watchlist = ({ watchlist, handleRemoveWatchlist, setWatchlist }) => {
       <div className="flex justify-center flex-wrap m-4">
 
         {genreList.map((genre)=>{
-          return <div onClick={() => handleFilter(genre)} className={currentGenre==genre ? "flex bg-blue-400 rounded-xl my-2 w-[9rem] h-[3rem] justify-center items-center text-white font-bold mx-4" : "flex bg-gray-400/50 rounded-xl w-[9rem] h-[3rem] justify-center items-center text-white font-bold mx-4"}>{genre}</div>
+          return <div onClick={() => handleFilter(genre)} className={currentGenre==genre ? "flex bg-blue-400 rounded-xl my-2 w-[9rem] h-[3rem] justify-center items-center text-white font-bold mx-4" : "flex bg-gray-400/50 rounded-xl w-[9rem] h-[3rem] justify-center items-center text-white font-bold my-2 mx-4"}>{genre}</div>
         })}
         {/* <div className=" flex bg-gray-400/50 rounded-xl w-[9rem] h-[3rem] justify-center items-center text-white font-bold mx-4">Action</div>
         <div className=" flex bg-gray-400/50 rounded-xl w-[9rem] h-[3rem] justify-center items-center text-white font-bold">Action</div> */}
