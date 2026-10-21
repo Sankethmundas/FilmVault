@@ -1,11 +1,18 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import genreids from "../Utility/genre"
 
 const Watchlist = ({ watchlist, handleRemoveWatchlist, setWatchlist }) => {
 
   const [search,setSearch] = useState(``)
-  const [genreList, SetGenreList] = useState(['All genres'])
   const [currentGenre, setCurrentgenre] = useState('All genres')
+  const genreList = [
+    'All genres',
+    ...new Set(
+      watchlist
+        .map((movieObj) => genreids[movieObj.genre_ids[0]])
+        .filter(Boolean),
+    ),
+  ]
 
   const handleSearch = (e) => {
     setSearch(e.target.value)
@@ -16,28 +23,20 @@ const Watchlist = ({ watchlist, handleRemoveWatchlist, setWatchlist }) => {
   }
 
   const sortIncreasing = () =>{
-    let increaseSort = watchlist.sort((movieA,movieB) =>{
+    const increaseSort = [...watchlist].sort((movieA,movieB) =>{
       return movieA.vote_average - movieB.vote_average
     })
 
-    setWatchlist([...increaseSort])
+    setWatchlist(increaseSort)
   }
 
   const sortDecreasing = () =>{
-    let DecreaseSort = watchlist.sort((movieA,movieB) =>{
+    const DecreaseSort = [...watchlist].sort((movieA,movieB) =>{
       return movieB.vote_average - movieA.vote_average
     })
 
-    setWatchlist([...DecreaseSort])
+    setWatchlist(DecreaseSort)
   }
-
-  useEffect(() => {
-    let temp = watchlist.map((movieObj) => {
-      return genreids[movieObj.genre_ids[0]]
-    })
-    temp = new Set(temp)
-    SetGenreList(['All genres' , ...temp])
-  },[watchlist])
 
   return (
     <>

@@ -6,23 +6,50 @@ import Pagination from "./Pagination";
 const Movies = ({ handleAddToWatchlist, handleRemoveWatchlist, watchlist }) => {
   const [movies, setMovies] = useState([]);
   const [pageNo, setPageNo] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const handlePrev = () => {
+    setLoading(true);
     setPageNo((currentPage) => Math.max(1, currentPage - 1));
   };
 
   const handleNext = () => {
-    setPageNo((currentPage) => currentPage + 1);
+    if (pageNo < totalPages) {
+      setLoading(true);
+      setPageNo((currentPage) => currentPage + 1);
+    }
   };
 
   useEffect(() => {
+    const controller = new AbortController();
+
     axios
-      .get(
-        `https://api.themoviedb.org/3/movie/popular?api_key=584bfa725ac43b6d505cd0c6cad05078&language=en-US&page=${pageNo}`,
-      )
-      .then(function (res) {
+      .get("/api/popular", {
+        params: { page: pageNo },
+        signal: controller.signal,
+      })
+      .then((res) => {
+        setError("");
         setMovies(res.data.results);
+        setTotalPages(Math.min(res.data.total_pages || 1, 500));
+      })
+      .catch((requestError) => {
+        if (!axios.isCancel(requestError)) {
+          setError(
+            requestError.response?.data?.error ||
+              "Unable to load movies. Please try again later.",
+          );
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       });
+
+    return () => controller.abort();
   }, [pageNo]);
   return (
     <>
@@ -30,6 +57,12 @@ const Movies = ({ handleAddToWatchlist, handleRemoveWatchlist, watchlist }) => {
         <div className="text-2xl text-center font-bold m-5">
           Trending Movies
         </div>
+
+        {error && (
+          <p role="alert" className="text-center text-red-700">
+            {error}
+          </p>
+        )}
 
         <div className="flex flex-row flex-wrap justify-around gap-8">
           {movies.map((movieObj) => {
@@ -46,12 +79,17 @@ const Movies = ({ handleAddToWatchlist, handleRemoveWatchlist, watchlist }) => {
             );
           })}
         </div>
-        <Pagination pageNo={pageNo} handlePrev={handlePrev} handleNext={handleNext} />
+        {loading && <p className="text-center">Loading movies...</p>}
+        <Pagination
+          pageNo={pageNo}
+          handlePrev={handlePrev}
+          handleNext={handleNext}
+          canGoPrev={pageNo > 1 && !loading}
+          canGoNext={pageNo < totalPages && !loading}
+        />
       </div>
     </>
   );
 };
 
 export default Movies;
-
-//https://api.themoviedb.org/3/movie/popular?api_key=584bfa725ac43b6d505cd0c6cad05078&language=en-US&page=1
